@@ -247,44 +247,6 @@ const LandingPage = () => {
         </div>
       </section>
 
-      <section id="subscription" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-black text-slate-900">{t("subscription.title")}</h2>
-          <Badge tone="warning">{isFa ? "نمونه قیمت" : "Example only"}</Badge>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            { title: t("subscription.tier1"), price: isFa ? "رایگان تست" : "Test only", feats: ["2 خط", "7 روز داده", "داشبورد نمایشی"] },
-            { title: t("subscription.tier2"), price: isFa ? "۱۲,۵۰۰,۰۰۰ ریال/ماه" : "12.5M IRR/mo", feats: ["۵ خط", "حفظ تاریخچه ۶ ماه", "پشتیبانی ۵×۹"] },
-            { title: t("subscription.tier3"), price: isFa ? "تماس" : "Contact", feats: ["تمام خطوط", "استقرار اختصاصی", "یکپارچه‌سازی MES/ERP"] }
-          ].map((tier, idx) => (
-            <Card
-              key={tier.title}
-              title={tier.title}
-              subtitle={isFa ? "داده نمایشی" : "Demo"}
-              className="card-hover"
-              actions={<Badge tone={idx === 1 ? "primary" : "neutral"}>{idx === 1 ? (isFa ? "محبوب" : "Popular") : "Demo"}</Badge>}
-            >
-              <div className="text-2xl font-black text-slate-900">{tier.price}</div>
-              <ul className="mt-3 space-y-2 text-sm text-slate-600">
-                {tier.feats.map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-primary-500" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                className="mt-4 w-full rounded-xl bg-primary-600 px-3 py-2 text-sm font-bold text-white shadow-soft"
-                onClick={() => navigate("/contact")}
-              >
-                {isFa ? "درخواست جلسه" : "Request meeting"}
-              </button>
-            </Card>
-          ))}
-        </div>
-      </section>
-
       <section id="contact" className="space-y-4">
         <h2 className="text-2xl font-black text-slate-900">{t("contact.title")}</h2>
         <p className="text-sm text-slate-600">{t("contact.subtitle")}</p>

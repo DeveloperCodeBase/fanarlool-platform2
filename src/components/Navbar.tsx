@@ -7,7 +7,7 @@ import { Logo } from "./Logo";
 import { LanguageToggle } from "./LanguageToggle";
 import { useAppContext } from "../context/AppContext";
 
-const SECTION_IDS = ["hero", "modules", "architecture", "security", "subscription", "contact"];
+const SECTION_IDS = ["hero", "modules", "architecture", "security", "contact"];
 
 export const Navbar = () => {
   const { t } = useTranslation();
@@ -60,7 +60,6 @@ export const Navbar = () => {
       { key: "platform", label: t("nav.platform"), path: "/platform" },
       { key: "dashboards", label: t("nav.dashboards"), target: "modules" },
       { key: "architecture", label: t("nav.architecture"), target: "architecture" },
-      { key: "pricing", label: t("nav.pricing"), target: "subscription" },
       { key: "company", label: t("nav.company"), path: "/company" },
       { key: "contact", label: t("nav.contact"), path: "/contact", target: "contact" }
     ],

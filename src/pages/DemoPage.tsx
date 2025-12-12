@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
+import clsx from "clsx";
 import {
   Area,
   AreaChart,
@@ -29,7 +30,9 @@ import {
   Gauge,
   Monitor,
   Settings,
-  Info
+  Info,
+  Menu,
+  X
 } from "lucide-react";
 import { Sidebar } from "../components/ui/Sidebar";
 import { Card } from "../components/ui/Card";
@@ -57,6 +60,12 @@ const calcSampleOee = (s: OeeSample) => {
   return { availability, performance, quality, oee: availability * performance * quality };
 };
 
+const ChartContainer = ({ children }: { children: ReactNode }) => (
+  <div className="h-64 w-full overflow-x-auto">
+    <div className="h-full min-w-[460px]">{children}</div>
+  </div>
+);
+
 const DemoPage = () => {
   const { t, i18n } = useTranslation();
   const isFa = i18n.language === "fa";
@@ -66,10 +75,18 @@ const DemoPage = () => {
     setSelection,
     filtered,
     data,
-    language
+    language,
+    isRTL
   } = useAppContext();
   const [activeModule, setActiveModule] = useState<ModuleKey>("overview");
   const [selectedDowntime, setSelectedDowntime] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  const handleModuleChange = (module: ModuleKey) => {
+    setActiveModule(module);
+    setSidebarOpen(false);
+  };
 
   const factoryLines = useMemo(
     () => data.lines.filter((l) => l.factoryId === selection.factoryId),
@@ -303,11 +320,11 @@ const DemoPage = () => {
   ];
 
   const selectors = (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
       <select
         value={selection.factoryId}
         onChange={(e) => setSelection({ factoryId: e.target.value })}
-        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft"
+        className="w-full min-w-[180px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft sm:w-auto"
       >
         {factories.map((f) => (
           <option key={f.id} value={f.id}>
@@ -318,7 +335,7 @@ const DemoPage = () => {
       <select
         value={selection.range}
         onChange={(e) => setSelection({ range: e.target.value as any })}
-        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft"
+        className="w-full min-w-[180px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft sm:w-auto"
       >
         <option value="today">{t("demo.ranges.today")}</option>
         <option value="7d">{t("demo.ranges.week")}</option>
@@ -327,7 +344,7 @@ const DemoPage = () => {
       <select
         value={selection.shift}
         onChange={(e) => setSelection({ shift: e.target.value as any })}
-        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft"
+        className="w-full min-w-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft sm:w-auto"
       >
         <option value="A">{t("demo.shifts.a")}</option>
         <option value="B">{t("demo.shifts.b")}</option>
@@ -336,7 +353,7 @@ const DemoPage = () => {
       <select
         value={selection.product}
         onChange={(e) => setSelection({ product: e.target.value as any })}
-        className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft"
+        className="w-full min-w-[140px] rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm shadow-soft sm:w-auto"
       >
         <option value="A">{t("demo.products.a")}</option>
         <option value="B">{t("demo.products.b")}</option>
@@ -395,7 +412,7 @@ const DemoPage = () => {
             <Info size={14} />
             {isFa ? "فرمول OEE = دسترسی × کارایی × کیفیت" : "OEE = Availability × Performance × Quality"}
           </div>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <LineChart data={oeeAggregates.trend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -405,7 +422,7 @@ const DemoPage = () => {
                 <Line dataKey="oee" stroke="#2563eb" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
         <Card title={isFa ? "هشدارها" : "Alerts"} subtitle={t("demoData")}>
           <div className="space-y-3">
@@ -449,16 +466,18 @@ const DemoPage = () => {
             </div>
           </div>
         </div>
-        <div className="mt-4 h-64">
-          <ResponsiveContainer>
-            <BarChart data={downtimePareto}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="reason" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="minutes" fill="#22c55e" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="mt-4">
+          <ChartContainer>
+            <ResponsiveContainer>
+              <BarChart data={downtimePareto}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="reason" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="minutes" fill="#22c55e" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
       <Card title={isFa ? "جزئیات بر اساس شیفت و محصول" : "By shift and product"} subtitle={t("demoData")}>
@@ -484,7 +503,14 @@ const DemoPage = () => {
 
   const oeeModule = (
     <div className="space-y-4">
-      <Tabs items={tabs} active={activeModule} onChange={(k) => setActiveModule(k as ModuleKey)} />
+      <div className="overflow-x-auto">
+        <Tabs
+          items={tabs}
+          active={activeModule}
+          onChange={(k) => handleModuleChange(k as ModuleKey)}
+          className="min-w-max"
+        />
+      </div>
       <div className="grid gap-4 md:grid-cols-3">
         <KpiCard
           label="OEE"
@@ -505,7 +531,7 @@ const DemoPage = () => {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title={isFa ? "ترند ۷/۳۰ روزه" : "7/30 day trend"}>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <LineChart data={oeeAggregates.trend}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -515,10 +541,10 @@ const DemoPage = () => {
                 <Line dataKey="oee" stroke="#2563eb" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
         <Card title={isFa ? "A/P/Q به تفکیک خط" : "A/P/Q per line"}>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <BarChart data={oeeAggregates.lineChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -531,12 +557,12 @@ const DemoPage = () => {
                 <Bar dataKey="quality" stackId="apq" fill="#f59e0b" name="Q" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title={isFa ? "پارتو توقفات" : "Downtime Pareto"}>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <BarChart data={downtimePareto}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -546,10 +572,10 @@ const DemoPage = () => {
                 <Bar dataKey="minutes" fill="#f97316" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
         <Card title={isFa ? "پراکندگی توقف" : "Downtime scatter"}>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <ScatterChart>
                 <CartesianGrid />
@@ -559,7 +585,7 @@ const DemoPage = () => {
                 <Scatter data={downtimeScatter} fill="#2563eb" />
               </ScatterChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
         <Card title={isFa ? "انتخاب کد توقف (نمایشی)" : "Assign downtime code (demo)"} subtitle={t("demoData")}>
           <Table headers={[isFa ? "زمان" : "Time", isFa ? "دلیل" : "Reason", isFa ? "مدت" : "Minutes", isFa ? "اقدام" : "Action"]}>
@@ -655,7 +681,7 @@ const DemoPage = () => {
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title={isFa ? "ترند برق و مقایسه" : "Electricity trend vs previous"}>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <AreaChart data={energyTrend}>
                 <defs>
@@ -676,10 +702,10 @@ const DemoPage = () => {
                 <Area type="monotone" dataKey="prev" stroke="#94a3b8" fill="url(#colorPrev)" />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
         <Card title={isFa ? "تفکیک هزینه (نمایشی)" : "Cost breakdown (demo)"}>
-          <div className="h-64">
+          <ChartContainer>
             <ResponsiveContainer>
               <PieChart>
                 <Pie data={costBreakdown} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80}>
@@ -690,7 +716,7 @@ const DemoPage = () => {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
-          </div>
+          </ChartContainer>
         </Card>
         <Card title={isFa ? "هدف کاهش ۱۰٪ مصرف برق خط ۳" : "Goal: -10% electricity Line 3"}>
           <div className="text-sm text-slate-600">
@@ -742,18 +768,20 @@ const DemoPage = () => {
             tone="warning"
           />
         </div>
-        <div className="mt-4 h-64">
-          <ResponsiveContainer>
-            <BarChart data={benchmarking.factories}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="oee" name="OEE" fill="#2563eb" />
-              <Bar dataKey="defectRate" name={isFa ? "نرخ عیب" : "Defect rate"} fill="#f97316" />
-            </BarChart>
-          </ResponsiveContainer>
+        <div className="mt-4">
+          <ChartContainer>
+            <ResponsiveContainer>
+              <BarChart data={benchmarking.factories}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="oee" name="OEE" fill="#2563eb" />
+                <Bar dataKey="defectRate" name={isFa ? "نرخ عیب" : "Defect rate"} fill="#f97316" />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
       <Card title={isFa ? "رتبه خطوط" : "Line ranking"} subtitle={t("demoData")}>
@@ -799,15 +827,17 @@ const DemoPage = () => {
           <KpiCard label={isFa ? "هزینه انرژی تخمینی" : "Estimated energy cost"} value="3.2B IRR" tone="primary" />
         </div>
         <div className="mt-4 h-64">
-          <ResponsiveContainer>
-            <AreaChart data={oeeAggregates.trend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="day" />
-              <YAxis />
-              <Tooltip />
-              <Area type="monotone" dataKey="oee" stroke="#2563eb" fill="#c7d2fe" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <ChartContainer>
+            <ResponsiveContainer>
+              <AreaChart data={oeeAggregates.trend}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="oee" stroke="#2563eb" fill="#c7d2fe" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartContainer>
         </div>
       </Card>
     </div>
@@ -860,9 +890,35 @@ const DemoPage = () => {
   );
 
   return (
-    <div className="py-10">
-      <div className="grid gap-4 lg:grid-cols-[240px,1fr]">
-        <Sidebar items={tabs} active={activeModule} onSelect={(k) => setActiveModule(k as ModuleKey)} />
+    <div className="py-10 lg:py-12">
+      <div className="mb-3 flex items-center justify-between gap-3 lg:hidden">
+        <div className="flex items-center gap-2">
+          <Badge tone="primary">{t("demo.overview")}</Badge>
+          <span className="text-sm font-semibold text-slate-700">
+            {isFa ? "منوی ماژول‌ها" : "Modules menu"}
+          </span>
+        </div>
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="rounded-xl bg-white p-2 text-slate-700 shadow-soft"
+          aria-label={isFa ? "باز کردن منو" : "Open menu"}
+        >
+          <Menu size={18} />
+        </button>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[minmax(200px,260px),1fr]">
+        <div className="relative hidden lg:block">
+          <div className={clsx("sticky top-24 transition-all duration-200", sidebarCollapsed ? "w-16" : "w-64")}>
+            <Sidebar
+              items={tabs}
+              active={activeModule}
+              onSelect={(k) => handleModuleChange(k as ModuleKey)}
+              collapsed={sidebarCollapsed}
+              onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
+              title={isFa ? "داشبورد / داده / گزارش" : "Dashboard · Data · Reports"}
+            />
+          </div>
+        </div>
         <div className="space-y-6">
           {header}
           {activeModule === "overview" && overview}
@@ -872,6 +928,44 @@ const DemoPage = () => {
           {activeModule === "benchmark" && benchmarkModule}
           {activeModule === "reports" && reportsModule}
           {activeModule === "admin" && adminModule}
+        </div>
+      </div>
+      <div
+        className={clsx(
+          "fixed inset-0 z-40 transition",
+          sidebarOpen ? "pointer-events-auto" : "pointer-events-none"
+        )}
+      >
+        <div
+          className={clsx(
+            "absolute inset-0 bg-slate-900/50 transition-opacity duration-200",
+            sidebarOpen ? "opacity-100" : "opacity-0"
+          )}
+          onClick={() => setSidebarOpen(false)}
+        />
+        <div
+          className={clsx(
+            "absolute top-0 h-full w-72 max-w-[85%] bg-white p-4 shadow-2xl transition-transform duration-200",
+            isRTL ? "right-0" : "left-0",
+            sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full" : "-translate-x-full"
+          )}
+        >
+          <div className="mb-4 flex items-center justify-between">
+            <div className="text-sm font-bold text-slate-800">{isFa ? "منوی دمو" : "Demo menu"}</div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100"
+              aria-label={isFa ? "بستن" : "Close"}
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <Sidebar
+            items={tabs}
+            active={activeModule}
+            onSelect={(k) => handleModuleChange(k as ModuleKey)}
+            title={isFa ? "داشبورد / داده / گزارش" : "Dashboard · Data · Reports"}
+          />
         </div>
       </div>
     </div>

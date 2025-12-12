@@ -12,7 +12,6 @@ const resources = {
         platform: "پلتفرم مرکزی QC",
         dashboards: "داشبوردها",
         architecture: "معماری",
-        pricing: "قیمت‌گذاری اشتراکی (نمایشی)",
         company: "درباره ما",
         contact: "تماس",
         demo: "دمو"
@@ -50,12 +49,6 @@ const resources = {
           "مدل RBAC، SSO و لاگ حسابرسی",
           "رمزنگاری در انتقال و ذخیره‌سازی، کنترل نسخه مدل و دستورالعمل"
         ]
-      },
-      subscription: {
-        title: "قیمت‌گذاری اشتراکی (نمونه)",
-        tier1: "پایه آزمایشی",
-        tier2: "حرفه‌ای",
-        tier3: "Enterprise خصوصی"
       },
       contact: {
         title: "تماس",
@@ -124,7 +117,6 @@ const resources = {
         platform: "Central QC Platform",
         dashboards: "Dashboards",
         architecture: "Architecture",
-        pricing: "Subscription (Demo)",
         company: "Company",
         contact: "Contact",
         demo: "Demo"
@@ -162,12 +154,6 @@ const resources = {
           "RBAC, SSO and audit logging",
           "Encrypted in transit/at rest, model and recipe versioning"
         ]
-      },
-      subscription: {
-        title: "Subscription (Example)",
-        tier1: "Starter (Pilot)",
-        tier2: "Professional",
-        tier3: "Private Enterprise"
       },
       contact: {
         title: "Contact",
