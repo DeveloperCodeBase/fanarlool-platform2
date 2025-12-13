@@ -41,6 +41,7 @@ import { Tabs } from "../components/ui/Tabs";
 import { KpiCard } from "../components/ui/KpiCard";
 import { Table } from "../components/ui/Table";
 import { Modal } from "../components/ui/Modal";
+import { Drawer } from "../components/ui/Drawer";
 import { useAppContext } from "../context/AppContext";
 import { formatDateLabel, formatNumber, formatPercent } from "../utils/format";
 import { OeeSample } from "../data/mockGenerator";
@@ -61,8 +62,8 @@ const calcSampleOee = (s: OeeSample) => {
 };
 
 const ChartContainer = ({ children }: { children: ReactNode }) => (
-  <div className="h-64 w-full overflow-x-auto">
-    <div className="h-full min-w-[460px]">{children}</div>
+  <div className="h-64 w-full">
+    {children}
   </div>
 );
 
@@ -454,7 +455,7 @@ const DemoPage = () => {
             <div className="text-2xl font-bold text-emerald-600">
               {formatPercent(
                 filtered.qcRecords.filter((r) => r.result === "pass").length /
-                  Math.max(filtered.qcRecords.length, 1),
+                Math.max(filtered.qcRecords.length, 1),
                 language
               )}
             </div>
@@ -930,45 +931,19 @@ const DemoPage = () => {
           {activeModule === "admin" && adminModule}
         </div>
       </div>
-      <div
-        className={clsx(
-          "fixed inset-0 z-40 transition",
-          sidebarOpen ? "pointer-events-auto" : "pointer-events-none"
-        )}
+      <Drawer
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        title={isFa ? "منوی دمو" : "Demo menu"}
       >
-        <div
-          className={clsx(
-            "absolute inset-0 bg-slate-900/50 transition-opacity duration-200",
-            sidebarOpen ? "opacity-100" : "opacity-0"
-          )}
-          onClick={() => setSidebarOpen(false)}
+        <Sidebar
+          items={tabs}
+          active={activeModule}
+          onSelect={(k) => handleModuleChange(k as ModuleKey)}
+          title={isFa ? "داشبورد / داده / گزارش" : "Dashboard · Data · Reports"}
         />
-        <div
-          className={clsx(
-            "absolute top-0 h-full w-72 max-w-[85%] bg-white p-4 shadow-2xl transition-transform duration-200",
-            isRTL ? "right-0" : "left-0",
-            sidebarOpen ? "translate-x-0" : isRTL ? "translate-x-full" : "-translate-x-full"
-          )}
-        >
-          <div className="mb-4 flex items-center justify-between">
-            <div className="text-sm font-bold text-slate-800">{isFa ? "منوی دمو" : "Demo menu"}</div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="rounded-lg p-2 text-slate-600 transition hover:bg-slate-100"
-              aria-label={isFa ? "بستن" : "Close"}
-            >
-              <X size={18} />
-            </button>
-          </div>
-          <Sidebar
-            items={tabs}
-            active={activeModule}
-            onSelect={(k) => handleModuleChange(k as ModuleKey)}
-            title={isFa ? "داشبورد / داده / گزارش" : "Dashboard · Data · Reports"}
-          />
-        </div>
-      </div>
-    </div>
+      </Drawer>
+    </div >
   );
 };
 

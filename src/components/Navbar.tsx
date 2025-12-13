@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Menu, X, MonitorSmartphone, LayoutDashboard } from "lucide-react";
 import clsx from "clsx";
 import { Logo } from "./Logo";
+import { Drawer } from "./ui/Drawer";
 import { LanguageToggle } from "./LanguageToggle";
 import { useAppContext } from "../context/AppContext";
 
@@ -114,44 +115,48 @@ export const Navbar = () => {
           </nav>
         </div>
       </div>
-      {open && (
-        <div className="lg:hidden">
-          <div className="mx-4 mb-3 rounded-2xl bg-white/90 p-4 shadow-soft">
-            <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <button
-                  key={item.key}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                  onClick={() => {
-                    if (item.path) {
-                      navigate(item.path);
-                    } else if (item.target) {
-                      handleNav(item.target);
-                    }
-                    setOpen(false);
-                  }}
-                >
-                  <span>{item.label}</span>
-                  <span className="text-xs text-slate-400">●</span>
-                </button>
-              ))}
-              <div className={clsx("flex items-center justify-between rounded-xl px-3 py-2")}>
-                <LanguageToggle />
-                <button
-                  onClick={() => {
-                    navigate("/demo");
-                    setOpen(false);
-                  }}
-                  className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary-600 to-emerald-500 px-4 py-2 text-sm font-bold text-white shadow-soft"
-                >
-                  <MonitorSmartphone size={16} />
-                  {t("nav.demo")}
-                </button>
-              </div>
+      <Drawer
+        open={open}
+        onClose={() => setOpen(false)}
+        title={t("nav.home")} // Or just "Menu"
+      >
+        <div className="flex flex-col gap-2">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              onClick={() => {
+                if (item.path) {
+                  navigate(item.path);
+                } else if (item.target) {
+                  handleNav(item.target);
+                }
+                setOpen(false);
+              }}
+            >
+              <span>{item.label}</span>
+              <span className="text-xs text-slate-400">●</span>
+            </button>
+          ))}
+          <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4">
+            <div className="flex items-center justify-between px-2">
+              <span className="text-sm font-semibold text-slate-500">{isRTL ? "زبان" : "Language"}</span>
+              <LanguageToggle />
             </div>
+            <button
+              onClick={() => {
+                navigate("/demo");
+                setOpen(false);
+              }}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-emerald-500 px-4 py-3 text-sm font-bold text-white shadow-soft"
+            >
+              <MonitorSmartphone size={16} />
+              {t("nav.demo")}
+            </button>
           </div>
         </div>
-      )}
+      </Drawer>
+      {/* End of mobile menu */}
     </header>
   );
 };
