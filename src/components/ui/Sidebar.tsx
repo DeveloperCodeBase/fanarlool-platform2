@@ -23,8 +23,8 @@ export const Sidebar = ({
 }: SidebarProps) => (
   <div
     className={clsx(
-      "flex h-full min-h-[280px] flex-col gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-soft transition-all duration-200",
-      collapsed ? "w-16 items-center px-2" : "w-full",
+      "flex h-full min-h-[clamp(12rem,32vh,18rem)] flex-col gap-3 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-soft transition-all duration-200",
+      collapsed ? "items-center px-2" : "items-start",
       className
     )}
   >

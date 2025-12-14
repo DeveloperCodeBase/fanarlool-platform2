@@ -907,9 +907,16 @@ const DemoPage = () => {
           <Menu size={18} />
         </button>
       </div>
-      <div className="grid gap-4 lg:grid-cols-[minmax(200px,260px),1fr]">
-        <div className="relative hidden lg:block">
-          <div className={clsx("sticky top-24 transition-all duration-200", sidebarCollapsed ? "w-16" : "w-64")}>
+      <div
+        className={clsx(
+          "grid gap-4 lg:items-start",
+          sidebarCollapsed
+            ? "lg:grid-cols-[clamp(4.25rem,12vw,6.25rem)_1fr]"
+            : "lg:grid-cols-[clamp(14rem,24vw,19rem)_1fr]"
+        )}
+      >
+        <div className="relative hidden min-w-0 lg:block">
+          <div className="sticky top-24">
             <Sidebar
               items={tabs}
               active={activeModule}
@@ -920,7 +927,7 @@ const DemoPage = () => {
             />
           </div>
         </div>
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           {header}
           {activeModule === "overview" && overview}
           {activeModule === "qc" && qcModule}
@@ -935,6 +942,7 @@ const DemoPage = () => {
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         title={isFa ? "منوی دمو" : "Demo menu"}
+        className="lg:hidden"
       >
         <Sidebar
           items={tabs}

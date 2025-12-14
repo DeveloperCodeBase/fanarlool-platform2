@@ -8,16 +8,17 @@ type DrawerProps = PropsWithChildren<{
   onClose: () => void;
   title?: string;
   side?: "left" | "right"; // Explicit side override, otherwise auto based on dir
+  className?: string;
 }>;
 
-export const Drawer = ({ open, onClose, title, children }: DrawerProps) => {
+export const Drawer = ({ open, onClose, title, children, side, className }: DrawerProps) => {
   const { isRTL } = useAppContext();
 
   // Determine effective side: if LTR -> left, if RTL -> right (default behavior for drawers in most apps)
   // BUT user spec says: "slide from RIGHT in RTL and from LEFT in LTR".
   // So default is logical "start".
 
-  const effectiveSide = isRTL ? "right" : "left";
+  const effectiveSide = side ?? (isRTL ? "right" : "left");
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -38,8 +39,9 @@ export const Drawer = ({ open, onClose, title, children }: DrawerProps) => {
   return (
     <div
       className={clsx(
-        "fixed inset-0 z-50 transition-colors",
-        open ? "pointer-events-auto" : "pointer-events-none"
+        "fixed inset-0 z-50 overflow-hidden transition-colors",
+        open ? "pointer-events-auto" : "pointer-events-none",
+        className
       )}
     >
       {/* Backdrop */}
@@ -55,28 +57,27 @@ export const Drawer = ({ open, onClose, title, children }: DrawerProps) => {
       {/* Panel */}
       <div
         className={clsx(
-          "absolute inset-y-0 w-full max-w-xs transform bg-white shadow-2xl transition-transform duration-300 ease-out",
+          "absolute inset-y-0 flex h-full w-full max-w-[clamp(18rem,88vw,32rem)] bg-white shadow-2xl transition-transform duration-300 ease-out",
           effectiveSide === "right" ? "right-0" : "left-0",
-          open
-            ? "translate-x-0"
-            : effectiveSide === "right"
-              ? "translate-x-full"
-              : "-translate-x-full"
+          open ? "translate-x-0" : effectiveSide === "right" ? "translate-x-full" : "-translate-x-full"
         )}
         role="dialog"
         aria-modal="true"
+        aria-hidden={!open}
       >
-        <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
-          <div className="text-base font-bold text-slate-900">{title}</div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
-            aria-label="Close drawer"
-          >
-            <X size={20} />
-          </button>
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div className="text-base font-bold text-slate-900">{title}</div>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100"
+              aria-label="Close drawer"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-4">{children}</div>
         </div>
-        <div className="h-[calc(100%-60px)] overflow-y-auto p-4">{children}</div>
       </div>
     </div>
   );

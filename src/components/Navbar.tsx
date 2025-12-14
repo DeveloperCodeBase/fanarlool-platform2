@@ -119,6 +119,7 @@ export const Navbar = () => {
         open={open}
         onClose={() => setOpen(false)}
         title={t("nav.home")} // Or just "Menu"
+        className="lg:hidden"
       >
         <div className="flex flex-col gap-2">
           {navItems.map((item) => (
